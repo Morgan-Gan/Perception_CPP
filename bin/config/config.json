@@ -1,0 +1,50 @@
+{
+	"Transfer":
+	{
+		"South":
+		[
+			{"type":"tcpsrv","ip":"127.0.0.1","port":"12315","threads":"50","desc":"cfg tool server"},
+			{"type":"serial","ip":"127.0.0.1","port":"45","desc":""},
+			{"type":"rtspcli","ip":"10.0.78.201","port":"1088","username":"wavecamera1","pwd":"wavecamera1","code":"wavecamera1","desc":"pull remote video stream"}
+		],
+		"North":
+		[
+			{"type":"rpcli","ip":"127.0.0.1","port":"47391","conn":"100","desc":"report resutl to app server"},
+			{"type":"httpcli","ip":"127.0.0.1","port":"8080","desc":"report result to http server"}
+		]
+	},
+	"Db":
+	{
+		"Remote":
+		[
+			{"type":"rediscli","ip":"127.0.0.1","port":"47393","pwd":"123","max_conn":"20","init_conn":"5","conn_timeout":"2","rw_timeout":"2"}
+		],
+		"Locate":
+		[
+			{"type":"mem","ip":"127.0.0.1","port":"","pwd":""}
+		]
+	},
+	"App":
+	{
+
+	},
+	"Alg":
+	{
+		"Detect":
+		[
+			{"type":"DetectYolo","desc":"onestage"},
+			{"type":"DetctSsd","desc":"onestage"}
+		],
+		"ActionRecg":
+		[
+			{"type":"STPActionDetection"}
+		]
+	},
+	"Device":
+	{
+		"gpu":{},
+		"npu":{},
+		"cpu":{}
+	}
+}
+
