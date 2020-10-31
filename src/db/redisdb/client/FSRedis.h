@@ -12,9 +12,9 @@
 #include <string>
 #include <hiredis/hiredis.h>
 #include "FSCacheDB.h"
-#include "CommFun.h"
+#include "comm/CommFun.h"
 
-namespace db_redis
+namespace REDIS_DB
 {
 	class FSRedisConfig : public FSCacheConfig
 	{

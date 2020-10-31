@@ -2,7 +2,7 @@
 #include <chrono>
 #include <iostream>
 #include "log4cxx/Loging.h"
-#include "CommFun.h"
+#include "comm/CommFun.h"
 #include "FFmpeg.h"
 
 using namespace std;
@@ -25,18 +25,24 @@ CFFmpeg::~CFFmpeg()
 //打开H264解码器
 bool CFFmpeg::OpenH264Avcodec()
 {
-	do {
-		m_pCodec = avcodec_find_decoder(AV_CODEC_ID_H264);
-		if (!m_pCodec) {
-			break;
-		}
-		m_pCodecContext = avcodec_alloc_context3(m_pCodec);
-		if (avcodec_open2(m_pCodecContext, m_pCodec, nullptr) < 0) {
-			break;
-		}
-		return true;
-	} while (0);
-	return false;
+	m_pCodec = avcodec_find_decoder(AV_CODEC_ID_H264);
+	if (!m_pCodec) 
+	{
+		return false;
+	}
+
+	m_pCodecContext = avcodec_alloc_context3(m_pCodec);
+	if(nullptr == m_pCodecContext)
+	{
+		return false;
+	}
+	
+	int s32Result = avcodec_open2(m_pCodecContext, m_pCodec, NULL);
+	if (0 > s32Result) 
+	{
+		return false;
+	}
+	return true;
 }
 
 //打开视频文件

@@ -4,7 +4,7 @@
 #include "VideoQueue.h"
 #include "VideoQueueMng.h"
 #include "log4cxx/Loging.h"
-#include "CommFun.h"
+#include "comm/CommFun.h"
 #include "IVideoServiceModule.h"
 #include "boost/make_shared.hpp"
 
@@ -106,13 +106,13 @@ void CVSQueueManager::GetActImage(const std::string& strCamCode, eActType ActTyp
 }
 
 //从人脸队列获取图片
-void CVSQueueManager::GetFaceImage(const std::string& strCamCode, st_cvMat& srcMat)
+void CVSQueueManager::GetCmmImage(const std::string& strCamCode, st_cvMat& srcMat)
 {
 	unique_readguard<WfirstRWLock> rwlock(m_rwLock);
 	const auto Pos = m_mapVSObjs.find(strCamCode);
 	if (Pos != m_mapVSObjs.end())
 	{
-		Pos->second->GetFaceImage(srcMat);
+		Pos->second->GetCmmImage(srcMat);
 	}
 }
 

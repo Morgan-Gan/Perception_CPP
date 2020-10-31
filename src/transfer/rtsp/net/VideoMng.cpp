@@ -8,7 +8,7 @@
 #include "VideoQueueMng.h"
 #include "VideoModule.h"
 #include "log4cxx/Loging.h"
-#include "CommFun.h"
+#include "comm/CommFun.h"
 
 using namespace std;
 using namespace common_cmmobj;

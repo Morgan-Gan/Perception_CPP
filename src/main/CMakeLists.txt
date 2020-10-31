@@ -7,8 +7,8 @@ create_filters(src_files)
 
 # 追加依赖的公共对象
 SET(ADD_COMM_OBJ_SRC "")
-SET(AAD_OBJ_NAME_LST thread)
-add_cmm_obj("${AAD_OBJ_NAME_LST}")
+SET(AAD_OBJ_NAME_LST thread network buf json)
+add_cmm_obj(${CMMOBJ_DIR} "${AAD_OBJ_NAME_LST}")
 list(APPEND CMMOBJ_SRC ${ADD_COMM_OBJ_SRC})
 
 #编译可执行文件
@@ -17,14 +17,14 @@ add_executable(${PROJECT_NAME} ${src_files} ${CMMOBJ_SRC})
 # 依赖生成和第三方的静态库和动态库的文件及其目录
 ##依赖静态库(同一目录的放一起)
 SET(GEN_STATIC_LINK_LIBS gen_static_pkg)
-link_static_share_lib("${GEN_STATIC_LINK_LIBS}" ${GEN_PKG_CFG_DIR} "static")
+link_static_share_lib(${PROJECT_NAME} "${GEN_STATIC_LINK_LIBS}" ${GEN_PKG_CFG_DIR} "static")
 
 SET(3RD_STATIC_LINK_LIBS muduo)
-link_static_share_lib("${3RD_STATIC_LINK_LIBS}" ${3RDPARTY_PKG_CFG_DIR} "static")
+link_static_share_lib(${PROJECT_NAME} "${3RD_STATIC_LINK_LIBS}" ${3RDPARTY_PKG_CFG_DIR} "static")
 
 ## 依赖动态库
-SET(SHARE_LINK_LIBS hiredis thrift log4cxx boost live555 ffmpeg opencv)
-link_static_share_lib("${SHARE_LINK_LIBS}" ${3RDPARTY_PKG_CFG_DIR} "share")
+SET(SHARE_LINK_LIBS hiredis thrift log4cxx boost live555 ffmpeg opencv sqlite3)
+link_static_share_lib(${PROJECT_NAME} "${SHARE_LINK_LIBS}" ${3RDPARTY_PKG_CFG_DIR} "share")
 
 #程序安装设置
 ##目标文件的安装

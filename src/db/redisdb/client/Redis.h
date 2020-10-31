@@ -2,10 +2,10 @@
 #define _REDIS_H_
 
 #include <string>
-#include "CommFun.h"
+#include "comm/CommFun.h"
 #include "FSRedis.h"
 
-namespace db_redis
+namespace REDIS_DB
 {
 	class Redis
 	{

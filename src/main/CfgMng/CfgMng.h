@@ -1,32 +1,55 @@
 #pragma once
 #include <map>
 #include "comm/Singleton.h"
-#include "CommDefine.h"
+#include "comm/CommDefine.h"
 #include "CfgObj.h"
+#include "network/NetTcpDataPkg.h"
+
 namespace MAIN_MNG
 {	
-	using CfgObjMap = std::map<std::string,CfgObj>;
 	class CCfgMng : public common_template::CSingleton<CCfgMng>
 	{
 		friend class common_template::CSingleton<CCfgMng>;
+		using CfgObjMapType = std::map<std::string,MAIN_MNG::CfgObj>;
+		using CfgObjMapTypeShrPtr = std::shared_ptr<CfgObjMapType>;
+		using TupleType = std::tuple<std::string,Json,CfgObjMapTypeShrPtr>;
+
 	public:
 		bool LoadCfg();
 
-		void GetCfgJsonObj(const std::string& strKey,std::vector<Json>& lstCfg);
+		void GetSysCfgJsonObj(const std::string& strKey,std::vector<Json>& lstCfg);
+		bool GetSysCfgJsonObj(const std::string& strKey,Json& cfg);
+		void GetExFactorySysCfg(const std::string& strKey,std::vector<Json>& lstCfg);
+		bool GetExFactorySysCfg(const std::string& strKey,Json& cfg);
 
 	private:
 		CCfgMng() = default;
 		~CCfgMng() = default;
 
 	private:
-		bool LoadJsonCfg(const std::string& strPath);
-		void ReadJsonFile(const std::string& strPath, std::string& strJson);
-		bool ParseJsonCfg();
-		void ParseJsonNode(const std::string& strNode,const std::string& strSubNode);
+		void LoadSysCfgFromFile(const std::string& strPath);
+
+		void LoadSysCfgFromDb();
+
+		void LoadSysCfgTableFromDb(const std::string& strTableName);
+
+		void ParseJson(const Json& jObj,const CfgObjMapTypeShrPtr& mapExFactoryCfgObjShrPtr);
+
+		void ParseJsonNodeObj(TupleType&& jCfg);
+
+		void SaveJsonObj(const std::string& strKey,Json& elm,const CfgObjMapTypeShrPtr& cfgMapShrPtr);
+
+		void RecTcpProtocolMsg(const std::string& strTcpSvrPort, const std::string& strCliConn,const unsigned int& u32Cmd,const char*& pData, const int& s32DataLen);
+
+		void SysCfgUpdate(const std::string& strRootNode,Json& jSubNode);
+
+		void CleanSysCfgMap();
 
 	private:
-		Json m_jsObj;
-		CfgObjMap m_mapCfgObj;
+		Json m_jSysCfgInFile;
+		Json m_jSysCfgInDb;
+		CfgObjMapTypeShrPtr m_mapSysCfgInFileShrPtr = CfgObjMapTypeShrPtr(new CfgObjMapType());
+		CfgObjMapTypeShrPtr m_mapSysCfgInDbShrPtr = CfgObjMapTypeShrPtr(new CfgObjMapType());
 	};
 
 #define SCCfgMng (common_template::CSingleton<CCfgMng>::GetInstance())

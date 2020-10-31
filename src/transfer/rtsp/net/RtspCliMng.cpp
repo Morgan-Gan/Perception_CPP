@@ -5,6 +5,7 @@
 #include "comm/ScopeGuard.h"
 #include "VideoCommFunc.h"
 #include "VideoQueueMng.h"
+#include "log4cxx/Loging.h"
 
 extern "C" 
 {
@@ -54,7 +55,11 @@ CRtspCliMng::~CRtspCliMng()
 //获取摄像头RTSP地址
 bool CRtspCliMng::GetRtspUrl()
 {
-	struct IpcInformation ipc_info;
+	stringstream strStream;
+	strStream << "rtsp://" << GetCamIP().c_str() << ":554/Streaming/Channels/101?transportmode=unicast&profile=Profile_1";
+	m_strRtspUrl = strStream.str();
+	return true;
+	struct IpcInformation ipc_info = {0};
 	int ret = ONVIF_GetIPCInformation(GetCamIP().c_str(), GetCamUserName().c_str(), GetCamPwd().c_str(), 0, &ipc_info);
 	if (ret == 0)
 	{
@@ -89,7 +94,7 @@ void CRtspCliMng::CloseCamera()
 	}
 }
 
-//拉流回调函数
+//拉流回调函数videoRead
 void CRtspCliMng::CallBackFunc(SPropRecord* pRecord, int nRecords, u_int8_t* fReceiveBuffer, unsigned frameSize)
 {
 	//检测摄像机回调数据是否有PPS
@@ -98,12 +103,13 @@ void CRtspCliMng::CallBackFunc(SPropRecord* pRecord, int nRecords, u_int8_t* fRe
 		return;
 	}
 
-	//判断是否I Frame
+	//判断是否I Frame(暂时去掉)
+	/*
 	if (!(fReceiveBuffer[0] == 0x65 || fReceiveBuffer[0] == 0x25))
 	{
-		//LOG_VS(DEBUG) << string_format("Not the I frame: %s\n", GetCamCode() + "(" + GetCamIP() + ")");
 		return;
 	}
+	*/
 
 	VSQueShrPtr vsQueShrPtr = m_VSQueWekPtr.lock();
 	if (vsQueShrPtr)

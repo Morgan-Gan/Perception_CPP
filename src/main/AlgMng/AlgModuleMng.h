@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include "comm/Singleton.h"
-#include "CommDefine.h"
+#include "comm/CommDefine.h"
 
 namespace MAIN_MNG
 {
@@ -10,14 +10,16 @@ namespace MAIN_MNG
 		friend class common_template::CSingleton<CAlgModuleMng>;
 		
 	public:
-		bool LoadAlgModule();
-		bool OperateAlgModule();
+		bool StartAlgModule();
 
 	private:
-		CAlgModuleMng();
-		~CAlgModuleMng();
+		CAlgModuleMng() = default;
+		~CAlgModuleMng() = default;
 
-		bool InitAlgModule(const std::string& strModuleType,const std::string& strModuleName, Json&& cfgObj);
+		void LoadAndInitAlgModule(std::tuple<Json,Json,Json>&& cfg);
+
+		bool LoadAlgModule(const std::string& strModuleDllName);
+		void InitAlgModule(const string& strModuleName,Json&& algCfg,Json&& tranferCfg,Json&& dbCfg);
 
 	private:
 		std::unordered_map<std::string, DllShrPtr> m_mapDllShrPtr;

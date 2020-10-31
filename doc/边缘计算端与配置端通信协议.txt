@@ -1,0 +1,250 @@
+【数据协议格式整体说明】
+	客户和服务器相互通讯均采用统一的包头格式，数据位的默认值为0x00，没有特殊说明，0x00占数据位无具体意义。
+	
+完整的一帧数据格式：包头 + 包体 + 包尾
+
+包头（8个字节）：
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			占用字节数							备注说明
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+头标识		 	1							用作包头检测，定为0x7D
+包长度			4			  				包头+包体+包尾的长度
+版本号			1							此版本为04
+包序号			2							每次发包时自动加1，数据接收方可根据此值判断是否丢包
+消息码			1							指明数据包作用，请求、应答采用相同编码
+消息类          1                           区分是请求还是应答，0x00请求 0x01应答
+结果码		    1							查询或处理结果，请求方结果码为0x00，应答方结果码0x01，表示操作成功,<0表示失败，不知原因用0xFF表示
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+包体: 采用json格式
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+包尾（3个字节）：
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			占用字节数							备注说明
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+校验码			2							校验包括：版本号、包序号、消息码、结果码、包体；采用CRC-1021校验
+尾标识			1							用于检测数据包是否发送结束，定为0x0B
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+备注说明：
+	1、发送数据时，如除包头标识、包尾标识外的数据中出现（0x7d）或者（0x0B）或者（0x34)的字节，则在该字节前插入换码符（0x34），并将该字节用其反码替代；
+	2、接收数据时，将接收数据中的换码符（0x34）抛弃，并将其后一字节数据取反；
+	3、校验方式采用CRC-1021校验。
+
+【数据协议体定义】
+(一)配置管理
+(1)获取所有基本配置
+消息码：  0x11
+json包体格式：
+
+cli -> server : 空包体
+
+server -> cli :
+{
+	"Transfer":
+	{
+		"SouthTcpSvr":
+		[
+			{"type":"tcpsrv","ip":"127.0.0.1","port":"12315","params":{"threads":"50"},"enable":"1","idx":"1","desc":"tcp server"}
+		],
+		"SouthSerial":
+		[
+			{"type":"serial","ip":"127.0.0.1","port":"45","params":{"rate":"5600"},"enable":"0","idx":"1","desc":"serial data"}
+		],
+		"SouthVideo":
+		[
+			{"type":"rtspcli","ip":"10.0.78.201","port":"554","params":{"username":"admin","pwd":"wavecamera1","code":"camera1"},"enable":"1","idx":"1","desc":"video stream"},
+			{"type":"rtspcli","ip":"10.0.78.202","port":"554","params":{"username":"admin","pwd":"wavecamera1","code":"camera2"},"enable":"1","idx":"2","desc":"video stream"}
+		],
+		"NorthRpcCli":
+		[
+			{"type":"rpcli","ip":"127.0.0.1","port":"47391","params":{"conn":"100"},"enable":"1","idx":"1","desc":"rpc resutl to server"}
+		],
+		"NorthHttpCli":
+		[
+			{"type":"httpcli","ip":"127.0.0.1","port":"8080","params":{"type":""},"enable":"1","idx":"1","desc":"http result to server"}
+		],
+		"NorthTcpCli":
+		[
+			{"type":"tcpcli","ip":"127.0.0.1","port":"7788","params":{"threads":"50"},"enable":"0","idx":"1","desc":"tcp client"}
+		]
+	},
+	"Db":
+	{
+		"RedisCli":
+		[
+			{"type":"rediscli","ip":"127.0.0.1","port":"47393","params":{"pwd":"123","max_conn":"20","init_conn":"5","conn_timeout":"2","rw_timeout":"2"},"enable":"1","idx":"1"}
+		],
+		"MySqlCli":
+		[
+			{"type":"mysqlcli","ip":"127.0.0.1","port":"47393","params":{"pwd":"123"},"enable":"0","idx":"1"}
+		],
+		"SqliteSvr":
+		[
+			{"type":"sqlitesvr","ip":"127.0.0.1","port":"123","params":{"pwd":"123"},"enable":"0","idx":"1"}
+		]
+	},
+	"Alg":
+	{
+		"Detect":{"type":"detect","name":"DetectYolo","version":".1.0","model":{"name":"yolov5.rknn","type":"rknn","platform":"arm"},"task_lst":"person|bicycle","params":{},"enable":"1","idx":"1","desc":"onestage"},
+		"Action":{"type":"action","name":"DetectSsd","version":".1.0","model":{"name":"yolov3.rknn","type":"rknn","platform":"arm"},"task_lst":"smoke|intrude","params":{},"enable":"0","idx":"1","desc":"twostage"}
+	}
+}
+
+(2)获取任务
+消息码：  0x12
+json包体格式：
+
+cli -> server : 空包体
+
+server -> cli :
+{
+	[
+		{
+			"task_flag":"FireDetect1",
+			"alg_idx":"0 检测 1 行为 2 人脸",
+			"data_src":
+			[
+				{"transfer_id":"rtspcli1","desc":"video stream"},
+				{"transfer_id":"rtspcli2","desc":"video stream"}
+			],
+			"task_lst":"1|3|4|5",
+			"start_time":"11:00:00",
+			"end_time":"15:00:00",
+			"idx":"任务索引"
+		}
+	]
+}
+
+(3)设置任务
+消息码：  0x13
+json包体格式：
+
+cli -> server :
+{
+	[
+		{
+			"task_flag":"FireDetect1",
+			"alg_idx":"0 检测 1 行为 2 人脸",
+			"data_src":
+			[
+				{"transfer_id":"rtspcli1","desc":"video stream"},
+				{"transfer_id":"rtspcli2","desc":"video stream"}
+			],
+			"task_lst":"1|3|4|5",
+			"start_time":"11:00:00",
+			"end_time":"15:00:00",
+			"idx":"任务索引，-1为新建任务"
+		}
+	]
+}
+
+server -> cli :
+{
+	"result":"ok/fail"
+}
+
+(4)设置传输配置
+消息码：  0x14
+json包体格式：
+
+cli -> server :
+{
+	"Transfer":
+	{
+		"SouthTcpSvr":
+		[
+			{"type":"tcpsrv","ip":"127.0.0.1","port":"12315","params":{"threads":"50"},"enable":"1","idx":"1","desc":"tcp server"}
+		],
+		"SouthSerial":
+		[
+			{"type":"serial","ip":"127.0.0.1","port":"45","params":{"rate":"5600"},"enable":"0","idx":"1","desc":"serial data"}
+		],
+		"SouthVideo":
+		[
+			{"type":"rtspcli","ip":"10.0.78.201","port":"554","params":{"username":"admin","pwd":"wavecamera1","code":"camera1"},"enable":"1","idx":"1","desc":"video stream"},
+			{"type":"rtspcli","ip":"10.0.78.202","port":"554","params":{"username":"admin","pwd":"wavecamera1","code":"camera2"},"enable":"1","idx":"2","desc":"video stream"}
+		],
+		"NorthRpcCli":
+		[
+			{"type":"rpcli","ip":"127.0.0.1","port":"47391","params":{"conn":"100"},"enable":"1","idx":"1","desc":"rpc resutl to server"}
+		],
+		"NorthHttpCli":
+		[
+			{"type":"httpcli","ip":"127.0.0.1","port":"8080","params":{"type":""},"enable":"1","idx":"1","desc":"http result to server"}
+		],
+		"NorthTcpCli":
+		[
+			{"type":"tcpcli","ip":"127.0.0.1","port":"7788","params":{"threads":"50"},"enable":"0","idx":"1","desc":"tcp client"}
+		]
+	}
+}
+
+server -> cli :
+{
+	"result":"ok/fail"
+}
+
+(5)设置数据库配置
+消息码：  0x15
+json包体格式：
+
+cli -> server :
+{
+	"Db":
+	{
+		"RedisCli":
+		[
+			{"type":"rediscli","ip":"127.0.0.1","port":"47393","params":{"pwd":"123","max_conn":"20","init_conn":"5","conn_timeout":"2","rw_timeout":"2"},"enable":"1","idx":"1"}
+		],
+		"MySqlCli":
+		[
+			{"type":"mysqlcli","ip":"127.0.0.1","port":"47393","params":{"pwd":"123"},"enable":"0","idx":"1"}
+		],
+		"SqliteSvr":
+		[
+			{"type":"sqlitesvr","ip":"127.0.0.1","port":"123","params":{"pwd":"123"},"enable":"0","idx":"1"}
+		]
+	}
+}
+
+server -> cli :
+{
+	"result":"ok/fail"
+}
+
+(二）记录管理
+(1)获取记录信息
+消息码：  0x41
+json包体格式：
+
+cli -> server : 空包体
+
+server -> cli :
+{
+	 "start_idx":"当前记录开始索引",
+	 "end_idx":"当前记录结束索引",
+	 "total_size":"总记录数“
+}
+
+(2)分批获取记录内容
+消息码：  0x42
+json包体格式：
+
+cli -> server :
+{
+	 "start_idx":"记录开始索引"
+	 "batch_size":"请求获取当前记录批大小"
+}
+
+server -> cli :
+{
+	 "start_idx":"当前批记录开始索引，-1表示可查询的记录",
+	 "end_idx":"当前批记录结束索引",
+	 "batch_size":"当前批记录大小",
+	 "record":
+	 [
+		{"idx":"0","task_flag":"FireDetect1","alg_idx":"0 检测 1 行为 2 人脸",,"alert_type":"1","alert_date":"2020-08-07 13:12:12","data_src":"{"transfer_id":"rtspcli1","desc":"video stream"}","img":"Base64编码"}          
+	 ]
+}

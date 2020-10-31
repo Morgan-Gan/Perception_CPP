@@ -84,7 +84,7 @@ namespace IF_VIDEO_SERVICE
         virtual void GetActImage(const std::string& strCameraCode, eActType AccType, st_cvMat& stcvMat) = 0;
 
         //从人脸队列获取图片
-        virtual void GetFaceImage(const std::string& strCameraCode, st_cvMat& stcvMat) = 0;
+        virtual void GetCmmImage(const std::string& strCameraCode, st_cvMat& stcvMat) = 0;
 
         //上报摄像机运行状态
         virtual bool ReportCameraRunState(const std::string& CameraCode, const int32_t state) = 0;

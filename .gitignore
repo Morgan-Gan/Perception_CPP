@@ -294,3 +294,16 @@ bin/lib/libDetectSsd.so.1.0
 3rdparty/pkgconfig/thrift.pc
 bin/pkgconfig/gen_share_pkg.pc
 bin/pkgconfig/gen_static_pkg.pc
+bin/lib/libCommSafe.a
+bin/lib/libCommSafe.so
+bin/lib/libCommSafe.so.1
+bin/lib/libCommSafe.so.1.0
+bin/lib/libsqliteservice.a
+bin/lib/libVisionDetectAlg.so
+bin/lib/libVisionDetectAlg.a
+bin/lib/libVisionDetectAlg.so.1
+bin/lib/libVisionDetectAlg.so.1.0
+bin/lib/libVisionFaceAlg.a
+bin/lib/libVisionFaceAlg.so
+bin/lib/libVisionFaceAlg.so.1
+bin/lib/libVisionFaceAlg.so.1.0

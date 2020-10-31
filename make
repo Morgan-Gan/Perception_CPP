@@ -7,21 +7,18 @@ case $1 in
         cd build 
         cmake ..
         make
+        make install
         ;;
     "make") 
         cd build 
         make
         ;;
     "run")
-        cd bin 
-        ./chess
+        cd build/bin
+        ./Ubiquitousperception
         ;;
-    "test")
-        cd bin/test 
-        for name in `ls`
-            do
-                ./$name
-            done
+    "debug")
+        cd build/bin
         ;;
     *)  
         ./make "build"

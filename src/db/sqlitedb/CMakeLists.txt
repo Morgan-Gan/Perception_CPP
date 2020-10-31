@@ -1,0 +1,21 @@
+# 添加头文件包含目录
+INCLUDE_DIRECTORIES(".")
+
+#当前目录及其下子目录下所有源文件保存变量中
+file(GLOB_RECURSE src_files *.h *.cpp *.c *.cc) 
+create_filters(src_files)
+
+# 追加依赖的公共对象
+SET(ADD_COMM_OBJ_SRC "")
+SET(AAD_OBJ_NAME_LST json)
+add_cmm_obj(${CMMOBJ_DIR} "${AAD_OBJ_NAME_LST}")
+list(APPEND CMMOBJ_SRC ${ADD_COMM_OBJ_SRC})
+
+# 生成静态库目标
+add_library(sqliteservice_static STATIC ${src_files} ${CMMOBJ_SRC})
+
+# 指定静态库的输出名称
+set_target_properties(sqliteservice_static PROPERTIES OUTPUT_NAME "sqliteservice")
+
+# 链接第三方库
+##生成的静态库不需要显式链接第三方的静态或动态，在最后可执行文件生成时按动态库和静态库的方法进行链接

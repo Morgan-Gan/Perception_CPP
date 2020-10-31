@@ -2,7 +2,7 @@
 #include "log4cxx/Loging.h"
 
 using namespace std;
-using namespace db_redis;
+using namespace REDIS_DB;
 using namespace common_cmmobj;
 using namespace common_template;
 
@@ -14,12 +14,12 @@ const string strDefaultRedisPwd = "";
 const int s32RedisDefaultConnTimeOut = 2;
 const int s32RedisDefaultRWTimeout = 5;
 
-extern "C" bool IF_REDIS::InitRedis(const string& strRdIp, const string& strRdPwd, int s32RdPort, int s32RdConnTimeout, int s32RdRWTimeout, int maxConnections, int initConnections)
+extern "C" bool IF_REDIS::RedisInit(const string& strRdIp, const string& strRdPwd, int s32RdPort, int s32RdConnTimeout, int s32RdRWTimeout, int maxConnections, int initConnections)
 {
 	return SRedisMng.Init(strRdIp, strRdPwd, s32RdPort, s32RdConnTimeout, s32RdRWTimeout, maxConnections, initConnections);
 }
 
-extern "C" bool IF_REDIS::SaveDataToRedis(const std::string& strKey, const std::string& strData)
+extern "C" bool IF_REDIS::RedisSaveData(const std::string& strKey, const std::string& strData)
 {
 	bool bLongConn = true;
 	Redis* pRedis = SRedisMng.Get(bLongConn);
@@ -34,7 +34,7 @@ extern "C" bool IF_REDIS::SaveDataToRedis(const std::string& strKey, const std::
 	return (0 == s32Ret) ? true : false;
 }
 
-extern "C" void IF_REDIS::GetDataFromRedis(const std::string& strKey, std::vector<std::string>& vecData)
+extern "C" void IF_REDIS::RedisReadData(const std::string& strKey, std::vector<std::string>& vecData)
 {
 	bool bLongConn = true;
 	Redis* pRedis = SRedisMng.Get(bLongConn);
@@ -47,7 +47,7 @@ extern "C" void IF_REDIS::GetDataFromRedis(const std::string& strKey, std::vecto
 	SRedisMng.Put(pRedis, bLongConn);
 }
 
-extern "C" void IF_REDIS::DelDataFromRedis(const std::string& strKey)
+extern "C" void IF_REDIS::RedisDelData(const std::string& strKey)
 {
 	bool bLongConn = true;
 	Redis* pRedis = SRedisMng.Get(bLongConn);

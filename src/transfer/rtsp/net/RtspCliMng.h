@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "CommFun.h"
+#include "comm/CommFun.h"
 #include "mutex/LibMutex.h"
 #include "comm/NonCopyable.h"
 #include "videostream/BasicUsageEnvironment.hh"

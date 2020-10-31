@@ -5,7 +5,7 @@
 #include "thread/Thread.h"
 #include "comm/NonCopyable.h"
 #include "RtspCliMng.h"
-#include "CommFun.h"
+#include "comm/CommFun.h"
 #include "IVideoServiceModule.h"
 namespace rtsp_net
 {

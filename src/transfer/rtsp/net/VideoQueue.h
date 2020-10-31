@@ -61,7 +61,7 @@ namespace rtsp_net
         }			
 
         //获取人脸识别图片
-        void GetFaceImage(IF_VIDEO_SERVICE::st_cvMat& srcMat)
+        void GetCmmImage(IF_VIDEO_SERVICE::st_cvMat& srcMat)
         {
             Pop(FaceQueue, srcMat);
         }

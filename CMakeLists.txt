@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.11)   
+CMAKE_MINIMUM_REQUIRED(VERSION 3.16)   
 PROJECT(UbiquitousPerception)   
 SET(PROJECT_NAME "UbiquitousPerception") 
 
@@ -25,7 +25,7 @@ INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/3rdparty/include")
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/include/common_inc")
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/include/interface_inc")
 
-# 设置编译时链接库的相关目录
+# 设置编译时链接库(第三方或自研的)的相关目录
 ##设置pkg-config配置文件的路径变量
 SET(GEN_PKG_CFG_DIR ${PROJECT_SOURCE_DIR}/bin/pkgconfig)
 SET(3RDPARTY_PKG_CFG_DIR ${PROJECT_SOURCE_DIR}/3rdparty/pkgconfig)

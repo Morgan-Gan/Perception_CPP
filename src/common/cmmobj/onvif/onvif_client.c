@@ -140,9 +140,9 @@ void GetStreamUri(struct soap *soap,struct _trt__GetStreamUri *trt__GetStreamUri
 	}
 }
 
-struct soap* NewSoap(struct SOAP_ENV__Header *header,struct soap* soap,wsdd__ProbeType *req_,wsdd__ScopesType *sScope_)
+struct soap* NewSoap(struct SOAP_ENV__Header *header,wsdd__ProbeType *req_)
 {
-	soap = soap_new();
+	struct soap* soap = soap_new();
 	if(NULL == soap )
 	{
 		return NULL;
@@ -162,13 +162,61 @@ struct soap* NewSoap(struct SOAP_ENV__Header *header,struct soap* soap,wsdd__Pro
 	header->wsa__Action = was_Action;
 	soap->header = header;
 
-	soap_default_wsdd__ScopesType(soap, sScope_);
-	sScope_->__item = "";
+    wsdd__ScopesType sScope;
+	soap_default_wsdd__ScopesType(soap, &sScope);
+	(&sScope)->__item = "";
 	soap_default_wsdd__ProbeType(soap, req_);
-	req_->Scopes = sScope_;
+	req_->Scopes = &sScope;
 	req_->Types = ""; //"dn:NetworkVideoTransmitter";
 
-	return soap ;
+	return soap;
+}
+
+int SoapProbeAndMatches(struct soap *soap,struct wsdd__ProbeType* req,struct __wsdd__ProbeMatches* resp)
+{
+	int result = soap_send___wsdd__Probe(soap, multicast_addr, NULL, req);
+    while(result == SOAP_OK)
+    {
+        result = soap_recv___wsdd__ProbeMatches(soap, resp);
+        if(result == SOAP_OK)
+        {
+            if(soap->error)  
+            {
+                //printf("soap error 1: %d, %s, %s\n", soap->error, *soap_faultcode(soap), *soap_faultstring(soap));
+                result = soap->error;
+            }
+            else
+            {
+                //处理接收到的响应消息，提取设备信息
+                //这里我们通常需要IP、Device Service Address
+                //IP: soap_->ip
+                //Address: probeMatches.wsdd__ProbeMatches->ProbeMatch->XAddrs 
+                for(int i = 0; i < resp->wsdd__ProbeMatches->__sizeProbeMatch; i++)
+                {
+                    /*
+                    printf("__sizeProbeMatch        : %d\r\n", resp.wsdd__ProbeMatches->__sizeProbeMatch);  
+                    printf("wsa__EndpointReference       : %p\r\n", resp.wsdd__ProbeMatches->ProbeMatch->wsa__EndpointReference);  
+                    printf("Target EP Address       : %s\r\n", resp.wsdd__ProbeMatches->ProbeMatch->wsa__EndpointReference.Address);  
+                    printf("Target Type             : %s\r\n", resp.wsdd__ProbeMatches->ProbeMatch->Types);  
+                    printf("Target Service Address  : %s\r\n", resp.wsdd__ProbeMatches->ProbeMatch->XAddrs);  
+                    printf("Target Metadata Version : %d\r\n", resp.wsdd__ProbeMatches->ProbeMatch->MetadataVersion);  
+                    */
+                    if(resp->wsdd__ProbeMatches->ProbeMatch->Scopes)  
+                    {
+                        //printf("Target Scopes Address   : %s\r\n", resp.wsdd__ProbeMatches->ProbeMatch->Scopes->__item);
+                    }
+                }
+                break;
+            }
+        }
+        else if (soap->error)
+        {
+            //printf("[%d] soap error 2: %d, %s, %s\n", __LINE__, soap->error, *soap_faultcode(soap), *soap_faultstring(soap));
+            result = soap->error;
+        }
+    }
+
+    return result;
 }
 
 void doSome(struct soap *soap,	struct SOAP_ENV__Header *header ,struct __wsdd__ProbeMatches *resp)
@@ -199,51 +247,14 @@ int ONVIF_GetIPCInformation(const char *ip, const char* username, const char* pa
 {  
     struct SOAP_ENV__Header header;  
     wsdd__ProbeType req;
-	wsdd__ScopesType sScope;
-    struct soap *soap;
-	soap = NewSoap(&header,soap,&req,&sScope);
+    struct soap *soap = NewSoap(&header,&req);
     if(NULL == soap)
     {
         return -1;
     }
 	
     struct __wsdd__ProbeMatches resp;
-	int result = soap_send___wsdd__Probe(soap, multicast_addr, NULL, &req);
-	while(result == SOAP_OK)
-	{
-		result = soap_recv___wsdd__ProbeMatches(soap, &resp);
-		if(result == SOAP_OK)
-		{
-			if(soap->error)  
-			{
-				result = soap->error;
-			}
-			else
-			{
-				for(int i = 0; i < resp.wsdd__ProbeMatches->__sizeProbeMatch; i++)
-				{
-                    /*
-					printf("__sizeProbeMatch        : %d\r\n", resp.wsdd__ProbeMatches->__sizeProbeMatch);  
-					printf("wsa__EndpointReference       : %p\r\n", resp.wsdd__ProbeMatches->ProbeMatch->wsa__EndpointReference);  
-					printf("Target EP Address       : %s\r\n", resp.wsdd__ProbeMatches->ProbeMatch->wsa__EndpointReference.Address);  
-					printf("Target Type             : %s\r\n", resp.wsdd__ProbeMatches->ProbeMatch->Types);  
-					printf("Target Service Address  : %s\r\n", resp.wsdd__ProbeMatches->ProbeMatch->XAddrs);  
-					printf("Target Metadata Version : %d\r\n", resp.wsdd__ProbeMatches->ProbeMatch->MetadataVersion);  
-                    */
-					if(resp.wsdd__ProbeMatches->ProbeMatch->Scopes)  
-					{
-						//printf("Target Scopes Address   : %s\r\n", resp.wsdd__ProbeMatches->ProbeMatch->Scopes->__item);
-					}
-				}
-				break;
-			}
-		}
-		else if (soap->error)
-		{
-			result = soap->error;
-		}
-	}
-
+    int result = SoapProbeAndMatches(soap,&req,&resp);
 	if(result==SOAP_OK)
 	{
 		doSome(soap,&header,&resp);

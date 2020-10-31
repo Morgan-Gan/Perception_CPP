@@ -10,7 +10,7 @@
 #include <stdio.h> /* for size_t */
 #include <stdarg.h> /* for va_list */
 
-namespace db_redis
+namespace REDIS_DB
 {
 	class FSCacheConfig
 	{

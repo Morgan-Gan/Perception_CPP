@@ -1,6 +1,6 @@
 #pragma once
 #include <functional>
-#include "CommFun.h"
+#include "comm/CommFun.h"
 #include <pthread.h>
 #include "mutex/LibMutex.h"
 
@@ -23,7 +23,19 @@ namespace common_cmmobj
 
 
 	public:
-		CThread(Func Cb, const int s32SecCycle, const int s32mSecCycle, std::string strThreadName = "",int s32CpuId = -1);
+		CThread(Func Cb, const int s32SecCycle, const int s32mSecCycle, const std::string& strThreadFlag,const int& s32CpuId);
+
+		template<class Fc,class ...Args>
+		CThread(const int& s32SecCycle, const int& s32mSecCycle, const std::string& strThreadFlag,const int& s32CpuId,Fc Cb, Args && ...args) :
+				m_s32SecCycle(s32SecCycle),
+				m_s32mSecCycle(s32mSecCycle),
+				m_strThreadFlag(strThreadFlag),
+				m_s32CpuId(s32CpuId),
+				m_Cb(std::bind(Cb,std::forward<Args>(args)...))
+		{
+			Init();
+		}
+
 		~CThread();
 
 	private:
@@ -79,7 +91,7 @@ namespace common_cmmobj
 		const int m_s32mSecCycle;
 		Func const m_Cb;
 		TPthreadMutexCondInfo m_tThreadInfo;
-		std::string const m_strThreadName;
+		std::string const m_strThreadFlag;
 
 		int m_s32CpuId;
 	};

@@ -5,11 +5,11 @@ using namespace std;
 using namespace common_cmmobj;
 using namespace common_template;
 
-CThread::CThread(Func Cb, const int s32SecCycle, const int s32mSecCycle, string strThreadName,int s32CpuId) :
+CThread::CThread(Func Cb, const int s32SecCycle, const int s32mSecCycle, const std::string& strThreadFlag,const int& s32CpuId) :
 	m_Cb(Cb),
 	m_s32SecCycle(s32SecCycle),
 	m_s32mSecCycle(s32mSecCycle),
-	m_strThreadName(strThreadName),
+	m_strThreadFlag(strThreadFlag),
 	m_s32CpuId(s32CpuId)
 {
 	Init();
@@ -42,11 +42,11 @@ bool CThread::CreatThread()
 	int s32Ret = 0;
 	if ((s32Ret = pthread_create(&m_tThreadInfo.i_id, NULL, ThreadLoop, this)) != 0)
 	{
-		LOG_FATAL("systerm") << string_format("Create Thread(%s) Fail!\n", m_strThreadName.c_str());
+		LOG_FATAL("systerm") << string_format("Create Thread(%s) Fail!\n", m_strThreadFlag.c_str());
 	}
 	else
 	{
-		LOG_INFO("systerm") << string_format("Create Thread(%s) Successful!\n", m_strThreadName.c_str());
+		LOG_INFO("systerm") << string_format("Create Thread(%s) Successful!\n", m_strThreadFlag.c_str());
 	}
 
 	//bind a cpu

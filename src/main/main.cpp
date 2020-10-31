@@ -2,6 +2,8 @@
 #include "DbMng/DbMng.h"
 #include "TransferMng/TransferMng.h"
 #include "CfgMng/CfgMng.h"
+#include "AlgMng/AlgModuleMng.h"
+#include "AppMng/AppModuleMng.h"
 
 using namespace std;
 using namespace MAIN_MNG;
@@ -27,6 +29,12 @@ int main(int argc, char **argv)
 
 	/*北向通信启动*/
 	SCTransferMng.StartNorthTrans();
+
+	/*加载算法模块*/
+	SCAlgModuleMng.StartAlgModule();
+
+	/*加载应用模块*/
+	SCAppModuleMng.StartAppModule();
 
 	/*南向通信启动*/
 	SCTransferMng.StartSouthTrans();

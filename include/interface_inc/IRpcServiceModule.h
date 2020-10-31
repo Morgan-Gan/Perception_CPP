@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <functional>
-#include "CommFun.h"
+#include "comm/CommFun.h"
 #include "comm/Any.h"
 namespace IF_RPC_SERVICE
 {

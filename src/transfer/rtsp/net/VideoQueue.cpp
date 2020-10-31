@@ -1,6 +1,6 @@
 #include "VideoQueue.h"
 #include <iostream>
-#include "CommFun.h"
+#include "comm/CommFun.h"
 #include "log4cxx/Loging.h"
 #include "IVideoServiceModule.h"
 

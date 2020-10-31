@@ -1,6 +1,6 @@
 #include "RPCClient.h"
 #include "log4cxx/Loging.h"
-#include "CommFun.h"
+#include "comm/CommFun.h"
 #include "time/CpuExeTime.h"
 
 using namespace std;

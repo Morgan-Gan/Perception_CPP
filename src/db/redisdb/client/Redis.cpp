@@ -2,7 +2,7 @@
 #include "log4cxx/Loging.h"
 
 using namespace std;
-using namespace db_redis;
+using namespace REDIS_DB;
 using namespace common_cmmobj;
 using namespace common_template;
 

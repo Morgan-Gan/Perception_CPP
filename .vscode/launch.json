@@ -5,23 +5,31 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) 启动",
+            "name": "UbiquitousPerception",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/mnt/my_proj/UbiquitousPerception/build/bin/UbiquitousPerception",
+            "program": "${workspaceFolder}/build/bin/UbiquitousPerception",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "/mnt/my_proj/UbiquitousPerception/build/bin",
+            "cwd": "${workspaceFolder}/build/bin",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "setupCommands": [
+            "setupCommands": 
+            [
                 {
-                    "description": "为 gdb 启用整齐打印",
+                    "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
-            ]
+            ],
+            "logging": 
+            {
+                "engineLogging": true
+            }
+            //,"preLaunchTask": "start remote gdbserver"
+            //,"miDebuggerPath":"/opt/aarch64-linux-gnu/bin/aarch64-linux-gnu-gdb"
+            //,"miDebuggerServerAddress":"10.0.192.108:1234"
         }
     ]
 }

@@ -17,7 +17,7 @@ namespace common_template
 
 	protected:
 		CSingleton();
-		~CSingleton();
+		virtual ~CSingleton();
 	};
 
 	template<typename T>

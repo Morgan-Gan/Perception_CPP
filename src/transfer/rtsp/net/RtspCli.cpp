@@ -2,7 +2,7 @@
 #include <sstream>
 #include "videostream/DigestAuthentication.hh"
 #include "log4cxx/Loging.h"
-#include "CommFun.h"
+#include "comm/CommFun.h"
 #include "VideoCommFunc.h"
 
 using namespace std;

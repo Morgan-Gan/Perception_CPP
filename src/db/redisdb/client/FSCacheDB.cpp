@@ -1,6 +1,6 @@
 #include "FSCacheDB.h"  
 
-using namespace db_redis;
+using namespace REDIS_DB;
 
 static FSCacheDB* s_sharedCache = NULL;
 FSCacheDB::FSCacheDB()

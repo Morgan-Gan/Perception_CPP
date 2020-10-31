@@ -4,7 +4,7 @@
 #include <type_traits>
 #include <tuple>
 #include <functional>
-#include "FunctionTraits.h"
+#include "comm/FunctionTraits.h"
 
 namespace common_template
 {
@@ -239,7 +239,7 @@ namespace common_template
 		template<typename F>
 		void Visit(F&& f)
 		{
-			using T = typename wdp_aas::aas_template::function_traits<F>::arg0::type;
+			using T = typename common_template::function_traits<F>::arg0::type;
 			if (Is<T>())
 			{
 				f(Get<T>());
@@ -249,7 +249,7 @@ namespace common_template
 		template<typename F, typename... Rest>
 		void Visit(F&& f, Rest&&... rest)
 		{
-			using T = typename wdp_aas::aas_template::function_traits<F>::arg0::type;
+			using T = typename common_template::function_traits<F>::arg0::type;
 			if (Is<T>())
 			{
 				Visit(std::forward<F>(f));

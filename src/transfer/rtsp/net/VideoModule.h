@@ -18,7 +18,7 @@ namespace rtsp_net
         virtual void GetActImage(const std::string& strCameraCode, IF_VIDEO_SERVICE::eActType ActType, IF_VIDEO_SERVICE::st_cvMat& stcvMat);
 
         //从人脸队列获取图片
-        virtual void GetFaceImage(const std::string& strCameraCode, IF_VIDEO_SERVICE::st_cvMat& stcvMat);
+        virtual void GetCmmImage(const std::string& strCameraCode, IF_VIDEO_SERVICE::st_cvMat& stcvMat);
 
         //上报摄像机运行状态
         bool ReportCameraRunState(const std::string& CameraCode, const int32_t state);

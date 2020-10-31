@@ -7,7 +7,7 @@
 #include "comm/Singleton.h"
 #include "IRedisServiceModule.h"
 
-namespace db_redis
+namespace REDIS_DB
 {
 	class RedisMng : public common_template::CSingleton<RedisMng>
 	{

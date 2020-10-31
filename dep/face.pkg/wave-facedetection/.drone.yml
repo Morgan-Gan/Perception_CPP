@@ -1,0 +1,89 @@
+kind: pipeline
+name: wave-DL
+
+steps:
+- name: cpplint
+  image: python:2.7
+  commands:
+   - echo "python cpplint.py"
+#  - curl -o cpplint.py https://raw.githubusercontent.com/google/styleguide/gh-pages/cpplint/cpplint.py
+#  - python cpplint.py --linelength=80 --counting=detailed $(find . -name "*.h" -or -name "*.cpp")
+
+- name: build
+  image: 193.168.1.117:5000/wavedl/cuda
+  privileged: true
+  commands:
+  - cd libwaveface_detection-03
+  - bash fetch-deps.sh centos7-cuda9.1-cudnn7-amd64 0.1.1
+  - bash build.sh
+  
+- name: unit-Test
+  image: 193.168.1.117:5000/wavedl/cuda
+  privileged: true
+  commands:
+  - cd libwaveface_detection-03/unit-test
+  - export LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/lib
+  - ./unit-test.bin --gtest_output=xml:./unit_result.xml
+  - cd ../..
+  - gcovr -r ./libwaveface_detection-03/libwaveface_detection/src --xml -o cover.xml
+  - cppcheck --xml --xml-version=2 --enable=all ./libwaveface_detection-03/libwaveface_detection  2> cppcheck.xml
+
+
+
+- name: code-analysis
+  image: aosapps/drone-sonar-plugin
+  environment:
+    PLUGIN_SONAR_HOST: http://193.168.1.117:9090
+    PLUGIN_SONAR_TOKEN: 45b2f8c4aaf703a700c98f80b6075c8e5b7a89cc  
+    PLUGIN_SOURCES: ./libwaveface_detection-03/libwaveface_detection/src
+
+
+- name: test-benchmark
+  image: 193.168.1.117:5000/wavedl/cuda
+  privileged: true
+  commands:
+  - cd libwaveface_detection-03
+  - cd example
+  - export LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/lib
+  - ldd test.bin
+  - ./test.bin images/1.jpg images/1.jpg
+
+- name: publish
+  image: 193.168.1.117:5000/wavedl/cuda
+  commands:
+  - yum install -y zip
+  - cd libwaveface_detection-03
+  - bash publish.sh
+  - curl -u admin:password -T package.zip http://193.168.1.117:8081/artifactory/development-local/face_detection/centos7-cuda9.1-cudnn7-amd64/2.0.0/
+
+
+volumes:
+- name: nvidia0
+  host:
+    path: /dev/nvidia0
+- name: nvidia1
+  host:
+    path: /dev/nvidia1
+- name: nvidia2
+  host:
+    path: /dev/nvidia2
+- name: nvidia3
+  host:
+    path: /dev/nvidia3
+- name: nvidiactl
+  host:
+    path: /dev/nvidiactl
+- name: nvidia-uvm
+  host:
+    path: /dev/nvidia-uvm
+- name: nvidia-uvm-tools
+  host:
+    path: /dev/nvidia-uvm-tools
+- name: nvidia-bin
+  host:
+    path: /home/autobuild/wave-project/waveci-drone/docker/v1.0.0-rc.6/nvidia-runtime-libs
+- name: nvidia-lib64
+  host:
+    path: /home/autobuild/wave-project/waveci-drone/docker/v1.0.0-rc.6/nvidia-runtime-bin/nvidia-smi
+
+

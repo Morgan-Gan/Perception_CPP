@@ -11,6 +11,6 @@ namespace common_template
 	template<typename... Args>
 	inline void ReleaseThread(Args&&... args)
 	{
-		std::initializer_list<int>{(DelThread(args), 0)...};
+		std::initializer_list<int>{(DelThread(std::forward<Args>(args)), 0)...};
 	}
 }

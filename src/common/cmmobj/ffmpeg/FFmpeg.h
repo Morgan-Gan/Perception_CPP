@@ -13,7 +13,7 @@ extern "C" {
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 #include "videostream/H264VideoRTPSource.hh"
-#include "CommDefine.h"
+#include "comm/CommDefine.h"
 #include "comm/NonCopyable.h"
 #include <opencv2/opencv.hpp>
 

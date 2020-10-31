@@ -34,13 +34,11 @@ bool CPullStream::Start()
 		return false;
 	}
 
-	LOG_INFO("rtsp_net") << string_format("PullStream Thread Start: %s\n", GetCameraCode());
-
 	//打开摄像头
 	m_RtspClientMngPtr->OpenCamera();
 
 	//创建拉流线程
-	m_PSThrUniPtr.reset(new CThread(boost::bind(&CPullStream::PullStreamLoop, this), 0, 0));
+	m_PSThrUniPtr.reset(new CThread(boost::bind(&CPullStream::PullStreamLoop, this), 0, 0,"",-1));
 
 	m_bRuning = true;
 
@@ -50,14 +48,7 @@ bool CPullStream::Start()
 //拉流线程循环体
 void CPullStream::PullStreamLoop()
 {
-	//检测识别时段
-	if (!CheckDiscernDuration())
-	{
-		sleep_for(minutes(1));
-		return;
-	}
-
-	m_RtspClientMngPtr->PullStream();
+	m_RtspClientMngPtr->PullStream();	
 }
 
 //更新摄像头信息

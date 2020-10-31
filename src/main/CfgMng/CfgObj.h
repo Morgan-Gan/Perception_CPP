@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "CommDefine.h"
+#include "comm/CommDefine.h"
 
 namespace MAIN_MNG
 {
@@ -14,10 +14,12 @@ namespace MAIN_MNG
         CfgObj& operator=(const CfgObj& obj);
         
         //插入配置记录
-        void PushJsonObj(const Json& jsCfg);
+        void SaveJsonObj(const Json& jsCfg);
 
         //取出配置记录
         void GetJsonObj(std::vector<Json>& lstJson);
+
+        bool GetJsonObj(Json& jsonCfg);
 
     public:
         CfgObj() = default;

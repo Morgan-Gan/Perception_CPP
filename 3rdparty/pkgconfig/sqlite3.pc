@@ -1,0 +1,15 @@
+prefix=/home/develop.proj/UbiquitousPerception/3rdparty
+platetype=x86_64
+libdir=${prefix}/lib_${platetype}
+includedir=${prefix}/include
+
+Name: SQLite
+Description: SQL database engine
+Version: 3.32.3
+URL:
+Requires:
+Requires.private:
+Conflicts:
+Libs: -L${libdir} -lsqlite3
+Libs.private: -lz -lm -ldl -lpthread 
+Cflags: -I${includedir}

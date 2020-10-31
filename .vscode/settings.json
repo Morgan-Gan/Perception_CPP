@@ -72,6 +72,13 @@
         "soaph.h": "c",
         "regex": "cpp",
         "rope": "cpp",
-        "slist": "cpp"
-    }
+        "slist": "cpp",
+        "bit": "cpp",
+        "shared_mutex": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "ranges": "cpp",
+        "stop_token": "cpp"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

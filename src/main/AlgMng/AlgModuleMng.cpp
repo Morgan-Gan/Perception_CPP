@@ -3,6 +3,8 @@
 #include "CfgMng/CfgMng.h"
 #include "boost/BoostFun.h"
 #include "log4cxx/Loging.h"
+#include "comm/FuncInitLst.h"
+#include "SubTopic.h"
 
 using namespace std;
 using namespace common_cmmobj;
@@ -11,84 +13,103 @@ using namespace MAIN_MNG;
 
 const string strAlgModuleNode("AlgModule");
 
-bool CAlgModuleMng::LoadAlgModule()
+bool CAlgModuleMng::StartAlgModule()
 {
-	/*
-	nlohmann::json&& jsCfg = SCCfgMng.GetJsonCfg();
-	for (auto it = jsCfg[strAlgModuleNode].begin(); it != jsCfg[strAlgModuleNode].end(); ++it)
+	//算法配置
+	Json algCfg;
+	if(!SCCfgMng.GetSysCfgJsonObj(strAlgNode,algCfg))
 	{
-		string strModuleType(it.key());
-		for (auto elm : it.value())
-		{
-			string&& strElmName = elm["name"];
-			string&& strModuleName = string("./lib") + strElmName + string(".so");
+		return false;
+	}
 
-			if (!InitAlgModule(strModuleType,strModuleName, std::move(elm)))
+	//获取传输配置
+	Json tranferCfg;
+	if(!SCCfgMng.GetSysCfgJsonObj(strTransferNode,tranferCfg))
+	{
+		return false;
+	}
+
+	//获取数据库配置
+	Json dbCfg;
+	if(!SCCfgMng.GetSysCfgJsonObj(strDbNode,dbCfg))
+	{
+		return false;
+	}
+
+	//算法模块加载和初始化
+	using TupleType = tuple<Json,Json,Json>;
+	TupleType&& tupleCfg = make_tuple<Json,Json,Json>(move(algCfg),move(tranferCfg),move(dbCfg));
+	FuncInitLst(std::bind(&CAlgModuleMng::LoadAndInitAlgModule,this,placeholders::_1),std::move(tupleCfg));
+	
+	return true;
+}
+
+void CAlgModuleMng::LoadAndInitAlgModule(tuple<Json,Json,Json>&& cfg)
+{
+	Json algCfg,tranferCfg,dbCfg;
+	tie(algCfg,tranferCfg,dbCfg) = cfg;
+
+	for (auto ite = algCfg.begin();ite != algCfg.end();ite++)
+	{
+		string&& strSubNode = string(ite.key());
+		for(auto elm : algCfg[strSubNode])
+		{
+			string&& strEnable = elm[strAttriEnable];
+			if("0" == strEnable)
 			{
-				return false;
+				continue;
 			}
+
+			//加载算法模块
+			string&& strDllName = string(elm[strAttriName]) + string(".so") + string(elm[strAttriVersion]);
+			if(!LoadAlgModule(strDllName))
+			{
+				continue;
+			}
+
+			//初始化算法模块
+			InitAlgModule(strDllName,move(elm),move(tranferCfg),move(dbCfg));
 		}
 	}
-*/
-	return true;
 }
 
-bool CAlgModuleMng::OperateAlgModule()
+bool CAlgModuleMng::LoadAlgModule(const std::string& strModuleDllName)
 {
-	for (auto dll : m_mapDllShrPtr)
-	{
-		/*
-		Mat&& src = cv::imread("./img/bus.jpg");
-		TorchTensor output;
-		MatVec vecBuf;
-		FloatVec vecScale;
-
-		string&& strTopic("ActDetectionProcMatExt");
-		SCMsgBusMng.GetMsgBus()->SendReq<bool, const Mat&, TorchTensor&, MatVec&, FloatVec&>(src, output, vecBuf, vecScale, strTopic);
-
-		if ("ObjDetectModule./libYolov3.so" == dll.first)
-		{
-			Mat&& src = cv::imread("./img/bus.jpg");
-			TorchTensor output;
-			MatVec vecBuf;
-			FloatVec vecScale;
-
-			string&& strTopic("Yolov3ProcMatExt");
-			SCMsgBusMng.GetMsgBus()->SendReq<bool, const Mat&, TorchTensor&, MatVec&, FloatVec&>(src, output, vecBuf, vecScale, strTopic);
-
-			LOG_INFO("systerm") << string_format("output size : %d %d |vecBuf size : %d |vecScale size : %d\n", output.size(0), output.size(1), vecBuf.size(), vecScale.size());
-		}
-		*/
-	}
-	return true;
-}
-
-CAlgModuleMng::CAlgModuleMng()
-{
-}
-
-CAlgModuleMng::~CAlgModuleMng()
-{
-}
-
-bool CAlgModuleMng::InitAlgModule(const string& strModuleType, const string& strModuleName, nlohmann::json&& cfgObj)
-{
+	bool bRet = false;
 	DllShrPtr dllParser = DllShrPtr(new DllParser);
-	if (dllParser->Load(strModuleName))
+	if (bRet = dllParser->Load(string("./lib/lib") + strModuleDllName))
 	{
-		using MsgBusShrPtr = std::shared_ptr<common_template::MessageBus>;
-		using TupleType = std::tuple<MsgBusShrPtr, Json, char*>;
-		TupleType&& Tuple = std::make_tuple(std::forward<MsgBusShrPtr>(SCMsgBusMng.GetMsgBus()), cfgObj,(char*)strModuleName.c_str());
-
-		dllParser->ExcecuteFunc<bool(Any&&)>("InitModuleDll", std::move(Tuple));
-
-		m_mapDllShrPtr.insert(make_pair(strModuleType + strModuleName, dllParser));
-
-		LOG_INFO("systerm") << string_format("load module successful %s\n",strModuleName.c_str());
+		m_mapDllShrPtr.insert(make_pair(strModuleDllName, dllParser));
+		LOG_INFO("systerm") << string_format("load module successful %s\n",strModuleDllName.c_str());
+		return true;
 	}
 	else
 	{
-		LOG_INFO("systerm") << string_format("load module fail %s\n", strModuleName.c_str());
+		LOG_INFO("systerm") << string_format("load module fail %s\n", strModuleDllName.c_str());
 	}
-	return true;
+	return false;
+}
+
+void CAlgModuleMng::InitAlgModule(const string& strModuleName,Json&& algCfg,Json&& tranferCfg,Json&& dbCfg)
+{
+	auto iter = m_mapDllShrPtr.find(strModuleName);
+	if (m_mapDllShrPtr.end() != iter)
+	{
+		using MsgBusShrPtr = std::shared_ptr<common_template::MessageBus>;
+		using TupleType = std::tuple<MsgBusShrPtr,Json,Json,Json>;
+
+		TupleType&& Tuple = std::make_tuple(std::forward<MsgBusShrPtr>(SCMsgBusMng.GetMsgBus()), algCfg,tranferCfg,dbCfg);
+
+		bool bRet = false;
+		bRet = iter->second->ExcecuteFunc<bool(Any&&)>("InitModuleDll", std::move(Tuple));
+		if(bRet)
+		{
+			LOG_INFO("systerm") << string_format("init algmodule %s successful!\n", strModuleName.c_str());
+		}
+		else
+		{
+			m_mapDllShrPtr.erase(iter);
+			LOG_INFO("systerm") << string_format("init algmodule %s fail!\n", strModuleName.c_str());
+		}
+	}
 }

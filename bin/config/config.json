@@ -1,50 +1,109 @@
 {
 	"Transfer":
 	{
-		"South":
+		"SouthTcpSvr":
 		[
-			{"type":"tcpsrv","ip":"127.0.0.1","port":"12315","threads":"50","desc":"cfg tool server"},
-			{"type":"serial","ip":"127.0.0.1","port":"45","desc":""},
-			{"type":"rtspcli","ip":"10.0.78.201","port":"1088","username":"wavecamera1","pwd":"wavecamera1","code":"wavecamera1","desc":"pull remote video stream"}
+			{"type":"tcpsrv","ip":"127.0.0.1","port":"12315","params":{"threads":"50"},"enable":"1","idx":"1","desc":"tcp server"}
 		],
-		"North":
+		"SouthSerial":
 		[
-			{"type":"rpcli","ip":"127.0.0.1","port":"47391","conn":"100","desc":"report resutl to app server"},
-			{"type":"httpcli","ip":"127.0.0.1","port":"8080","desc":"report result to http server"}
+			{"type":"serial","ip":"127.0.0.1","port":"45","params":{"rate":"5600"},"enable":"0","idx":"1","desc":"serial data"}
+		],
+		"SouthVideo":
+		[
+			{"type":"rtspcli","ip":"10.0.78.218","port":"554","params":{"username":"admin","pwd":"wavecamera1","code":"camera1"},"enable":"1","idx":"1","desc":"video stream"},
+			{"type":"rtspcli","ip":"10.0.78.219","port":"554","params":{"username":"admin","pwd":"wavecamera1","code":"camera2"},"enable":"1","idx":"2","desc":"video stream"}
+		],
+		"NorthRpcCli":
+		[
+			{"type":"rpcli","ip":"127.0.0.1","port":"47391","params":{"conn":"100"},"enable":"1","idx":"1","desc":"rpc resutl to server"}
+		],
+		"NorthHttpCli":
+		[
+			{"type":"httpcli","ip":"127.0.0.1","port":"8080","params":{"type":""},"enable":"1","idx":"1","desc":"http result to server"}
+		],
+		"NorthTcpCli":
+		[
+			{"type":"tcpcli","ip":"127.0.0.1","port":"7788","params":{"threads":"50"},"enable":"0","idx":"1","desc":"tcp client"}
 		]
 	},
 	"Db":
 	{
-		"Remote":
+		"RedisCli":
 		[
-			{"type":"rediscli","ip":"127.0.0.1","port":"47393","pwd":"123","max_conn":"20","init_conn":"5","conn_timeout":"2","rw_timeout":"2"}
+			{"type":"rediscli","ip":"127.0.0.1","port":"47393","params":{"pwd":"123","max_conn":"20","init_conn":"5","conn_timeout":"2","rw_timeout":"2"},"enable":"1","idx":"1","desc":""}
 		],
-		"Locate":
+		"MySqlCli":
 		[
-			{"type":"mem","ip":"127.0.0.1","port":"","pwd":""}
+			{"type":"mysqlcli","ip":"127.0.0.1","port":"47393","params":{"pwd":"123"},"enable":"0","idx":"1","desc":""}
+		],
+		"SqliteSvr":
+		[
+			{"type":"sqlitesvr","ip":"127.0.0.1","port":"123","params":{"pwd":"123"},"enable":"0","idx":"1","desc":""}
 		]
-	},
-	"App":
-	{
-
 	},
 	"Alg":
 	{
 		"Detect":
 		[
-			{"type":"DetectYolo","desc":"onestage"},
-			{"type":"DetctSsd","desc":"onestage"}
+			{"type":"detect","name":"VisionDetectAlg","version":".1.0","model":{"name":"yolov5.rknn","type":"rknn","platform":"arm"},"params":{},"enable":"0","idx":"1","desc":"onestage"}
 		],
-		"ActionRecg":
+		"Action":
 		[
-			{"type":"STPActionDetection"}
+			{"type":"action","name":"VisionActionAlg","version":".1.0","model":{"name":"yolov3.rknn","type":"rknn","platform":"arm"},"params":{},"enable":"0","idx":"1","desc":"twostage"}
+		],
+		"Face":
+		[
+			{"type":"face","name":"VisionFaceAlg","version":".1.0","model":{"name":"face_detection_v0.2.2.rknn","type":"rknn","platform":"arm"},"params":{},"enable":"1","idx":"1","desc":"twostage"}
 		]
 	},
-	"Device":
+	"Task":
 	{
-		"gpu":{},
-		"npu":{},
-		"cpu":{}
+		"Detect":
+		[
+			{"type":"detect","lst":"人|自行车|小车|摩托车|巴士|火车|卡车|船|交通灯|消防栓|停止标志|猫|狗|背包|雨伞|手提包|手提箱|刀|笔记本电脑|手机|火","idx":"1"}
+		],
+		"Action":
+		[
+			{"type":"behavior","lst":"抽烟|闯入|摔倒|徘徊|攀爬|打架","idx":"1"}
+		],
+		"Face":
+		[
+			{"type":"face","lst":"人脸","idx":"1"}
+		]
+	},
+	"App":
+	{
+		"CommSafe":
+		[
+			{
+				"type":"FireDetect",
+				"alg_idx":"0",
+				"data_src":
+				[
+					{"transfer_id":"rtspcli1","desc":"video stream"},
+					{"transfer_id":"rtspcli2","desc":"video stream"}
+				],
+				"task_lst":"0|1|2|3",
+				"start_time":"00:00:00",
+				"end_time":"18:00:00",
+				"idx":"1"
+			},
+			{
+				"type":"FaceReg",
+				"alg_idx":"2",
+				"data_src":
+				[
+					{"transfer_id":"rtspcli1","desc":"video stream"},
+					{"transfer_id":"rtspcli2","desc":"video stream"}
+				],
+				"task_lst":"0",
+				"start_time":"00:00:00",
+				"end_time":"18:00:00",
+				"idx":"1"
+			}
+	
+		]
 	}
 }
 

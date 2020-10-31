@@ -46,15 +46,15 @@ namespace common_cmmobj
 			////3. ��ȡ����ֵ
 			auto res = task->get_future();
 			{
-				//4. ���������������
+				//4. ���������������?
 				//4.1 ������
 				std::unique_lock<std::mutex> lck(mTaskMutex);
-				//4.2 ��ѯ�Ƿ��������
+				//4.2 ��ѯ�Ƿ��������?
 				mTaskCondFull.wait(lck, [this]()
 				{
 					return mbStop || mTaskQueue.size() < mMaxQueueSize;
 				});
-				//4.3 ������м���
+				//4.3 ������м���?
 				if (mbStop)
 				{
 					//������ʱ���������˳��̳߳�
@@ -107,7 +107,7 @@ namespace common_cmmobj
 					mTaskQueue.pop();
 					mTaskCondFull.notify_one();
 				}
-				//2. �����������
+				//2. �����������?
 				task();
 			}
 		}
@@ -128,7 +128,7 @@ namespace common_cmmobj
 		int mNumThreads;                //�̳߳����̵߳ĸ���
 		int mMaxQueueSize;                //�̳߳��У�������е����ֵ
 		std::vector<std::thread>        mWorkers;        //�����߳�
-		std::queue<Task>                mTaskQueue;        //�������
+		std::queue<Task>                mTaskQueue;        //�������?
 		std::mutex                        mTaskMutex;        //ͬ����
 		std::condition_variable            mTaskCondEmpty;        //
 		std::condition_variable            mTaskCondFull;        //

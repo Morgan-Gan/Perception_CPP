@@ -1,0 +1,84 @@
+kind: pipeline
+name: wavalib-identification
+
+steps:
+- name: cpplint
+  image: python:2.7
+  commands:
+  #- curl -o cpplint.py https://raw.githubusercontent.com/google/styleguide/gh-pages/cpplint/cpplint.py
+  #- python ./scripts/cpp_lint.py  --linelength=80 --counting=detailed $(find . -name "*.h" -or -name "*.cpp")
+
+- name: build
+  image: 193.168.1.117:5000/wavedl/cuda
+  privileged: true
+  commands:
+  - cd wavelib-face-identification-2
+  - bash fetch-deps.sh
+  - bash build.sh
+
+- name: Unit-test
+  image: 193.168.1.117:5000/wavedl/cuda
+  privileged: true
+  commands:
+  - cd wavelib-face-identification-2/unit-test
+  - export LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/lib:/usr/local/ffmpeg/lib
+  - ./unit_test.bin --gtest_output=xml:./unit_result.xml
+  - cd ../..
+  - gcovr -r ./wavelib-face-identification-2/src --xml -o cover.xml
+  - cppcheck --xml --xml-version=2 --enable=all ./wavelib-face-identification-2/src  2> cppcheck.xml
+  
+- name: code-analysis
+  image: aosapps/drone-sonar-plugin
+  environment:
+    PLUGIN_SONAR_HOST: http://193.168.1.117:9090
+    PLUGIN_SONAR_TOKEN: 45b2f8c4aaf703a700c98f80b6075c8e5b7a89cc 
+    PLUGIN_SOURCES: ./wavelib-face-identification-2/src
+  commands:
+
+- name: benchmark
+  image: 193.168.1.117:5000/wavedl/cuda
+  privileged: true
+  commands:
+  - cd wavelib-face-identification-2/benchmark
+  - export export LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/usr/local/lib:/usr/local/ffmpeg/lib
+  - ./Benchmark.bin
+
+- name: publish
+  image: 193.168.1.117:5000/wavedl/cuda
+  privileged: true
+  commands:
+  - cd wavelib-face-identification-2
+  - bash publish.sh
+  - curl -u admin:password -T package.zip http://193.168.1.117:8081/artifactory/development-local/face_identification/centos7-cuda9.1-cudnn7-amd64/2.1.1/
+
+
+volumes:
+- name: nvidia0
+  host:
+    path: /dev/nvidia0
+- name: nvidia1
+  host:
+    path: /dev/nvidia1
+- name: nvidia2
+  host:
+    path: /dev/nvidia2
+- name: nvidia3
+  host:
+    path: /dev/nvidia3
+- name: nvidiactl
+  host:
+    path: /dev/nvidiactl
+- name: nvidia-uvm
+  host:
+    path: /dev/nvidia-uvm
+- name: nvidia-uvm-tools
+  host:
+    path: /dev/nvidia-uvm-tools
+- name: nvidia-bin
+  host:
+    path: /home/autobuild/wave-project/waveci-drone/docker/v1.0.0-rc.6/nvidia-runtime-libs
+- name: nvidia-lib64
+  host:
+    path: /home/autobuild/wave-project/waveci-drone/docker/v1.0.0-rc.6/nvidia-runtime-bin/nvidia-smi
+
+

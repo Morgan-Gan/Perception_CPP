@@ -9,7 +9,8 @@ SET(CMMOBJ_SRC "")
 add_subdirectory(common)
 
 # 添加编译目录
+add_subdirectory(alg)
+add_subdirectory(app)
 add_subdirectory(db)
 add_subdirectory(transfer)
-add_subdirectory(alg)
 add_subdirectory(main)

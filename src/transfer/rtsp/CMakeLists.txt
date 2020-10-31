@@ -11,7 +11,7 @@ create_filters(src_files)
 # 追加依赖的公共对象
 SET(ADD_COMM_OBJ_SRC "")
 SET(AAD_OBJ_NAME_LST thread ffmpeg onvif)
-add_cmm_obj("${AAD_OBJ_NAME_LST}")
+add_cmm_obj(${CMMOBJ_DIR} "${AAD_OBJ_NAME_LST}")
 list(APPEND CMMOBJ_SRC ${ADD_COMM_OBJ_SRC})
 
 # 生成静态库目标

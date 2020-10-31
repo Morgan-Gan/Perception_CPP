@@ -34,7 +34,7 @@ namespace rtsp_net
         void GetActImage(const std::string& strCamCode, IF_VIDEO_SERVICE::eActType ActType, IF_VIDEO_SERVICE::st_cvMat& srcMat);
 
         //从人脸队列获取图片
-        void GetFaceImage(const std::string& strCamCode, IF_VIDEO_SERVICE::st_cvMat& srcMat);
+        void GetCmmImage(const std::string& strCamCode, IF_VIDEO_SERVICE::st_cvMat& srcMat);
 
         //检测队列对象是否存在
         bool QueueIsExist(const std::string& strCamCode);

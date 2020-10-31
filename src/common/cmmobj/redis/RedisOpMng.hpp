@@ -27,9 +27,9 @@ namespace common_cmmobj
 			std::string&& strType = RdJson["type"];
 			std::string&& strIp = RdJson["ip"];
 			std::string&& strPort = RdJson["port"];
-			m_strSaveDbTopic = GetRedisSaveTopic(strIp, strPort);
-			m_strGetDbTopic = GetRedisReadTopic(strIp, strPort);
-			m_strDelDbTopic = GetRedisDelTopic(strIp, strPort);
+			m_strSaveDbTopic = RedisSaveTopic(strIp, strPort);
+			m_strGetDbTopic = RedisReadTopic(strIp, strPort);
+			m_strDelDbTopic = RedisDelTopic(strIp, strPort);
 		}
 
 		inline bool SaveRedisData(const std::string& strKey, const std::string& strData)

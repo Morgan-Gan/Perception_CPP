@@ -1,0 +1,14 @@
+*.d
+*.obj
+*.o
+*.tlog
+*.lastbuildstate
+*.idb
+*.pdb
+*~
+*.swp
+#¹ıÂËÎÄ¼ş¼ĞDebug,Release,obj,build
+Debug/
+Release/
+obj/
+build/

@@ -44,9 +44,9 @@ void CVSModule::GetActImage(const std::string& strCameraCode, eActType ActType, 
 }
 
 //从人脸队列获取图片
-void CVSModule::GetFaceImage(const std::string& strCameraCode, st_cvMat& stcvMat)
+void CVSModule::GetCmmImage(const std::string& strCameraCode, st_cvMat& stcvMat)
 {
-	SVSQueueManager.GetFaceImage(strCameraCode, stcvMat);
+	SVSQueueManager.GetCmmImage(strCameraCode, stcvMat);
 }
 
 //同步添加摄像机数据
